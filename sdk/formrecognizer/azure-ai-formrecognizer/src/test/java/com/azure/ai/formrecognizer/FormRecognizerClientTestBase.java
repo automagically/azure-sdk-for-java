@@ -610,6 +610,17 @@ public abstract class FormRecognizerClientTestBase extends TestBase {
         RecognizedForm actualForm = actualForms.get(expectedPageNumber - 1);
         validatePageRangeData(expectedPageNumber, actualForm.getPageRange());
         assertTrue(actualForm.getFormType().startsWith("custom:"));
+        actualForm.getFields().forEach((key, formField) -> {
+            FormSelectionMark formselectionMark =
+                (FormSelectionMark) formField.getValueData().getFieldElements().get(0);
+            if ("MASTERCARD_SELECTION_MARK".equals(key)) {
+                assertEquals(SelectionMarkState.UNSELECTED, formselectionMark.getState());
+            } else if ("VISA_SELECTION_MARK".equals(key)) {
+                assertEquals(SelectionMarkState.UNSELECTED, formselectionMark.getState());
+            } else if ("AMEX_SELECTION_MARK".equals(key)) {
+                assertEquals(SelectionMarkState.SELECTED, formselectionMark.getState());
+            }
+        });
 
         actualForm.getPages().forEach(actualFormPage -> {
             Assertions.assertEquals(8.5, actualFormPage.getWidth());
@@ -618,6 +629,7 @@ public abstract class FormRecognizerClientTestBase extends TestBase {
 
             Assertions.assertEquals(0, actualFormPage.getTables().size());
             validateFormPage(actualFormPage, includeFieldElements);
+
         });
 
         actualForm.getFields().forEach((label, actualFormField) -> {
